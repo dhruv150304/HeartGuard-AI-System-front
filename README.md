@@ -1,16 +1,43 @@
-# React + Vite
+# HeartGuard Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for the HeartGuard/CardioSense app.
 
-Currently, two official plugins are available:
+## Local Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+## Vercel Deployment
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Use these settings in Vercel:
 
-## Expanding the ESLint configuration
+```text
+Framework Preset: Vite
+Build Command: npm run build
+Output Directory: dist
+Install Command: npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Add this environment variable after deploying the backend on Render:
+
+```text
+VITE_API_URL=https://your-render-service.onrender.com
+```
+
+Do not include a trailing slash.
+
+## Backend Connection
+
+The prediction page sends requests to:
+
+```text
+${VITE_API_URL}/predict
+```
+
+For local development, when `VITE_API_URL` is not set, it falls back to:
+
+```text
+http://localhost:8001
+```

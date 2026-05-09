@@ -133,7 +133,7 @@ function ResultReport({ result, onEdit, onReset, onDownloadPdf, onExportResult }
       <section className="rounded-[8px] border border-[#eadfd8] bg-[#1A1A2E] p-6 text-white shadow-sm">
         <p className="text-xs font-bold uppercase tracking-widest text-red-200">Prediction result</p>
         <div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-5 text-sm leading-6 text-white/62">
-          Fill the form and click predict. If your Python API is running on port 5000, this page will use the real model. Otherwise it shows a frontend estimate.
+          Fill the form and click predict. If your Python API is running on port 8001, this page will use the real model. Otherwise it shows a frontend estimate.
         </div>
       </section>
     );
@@ -268,7 +268,7 @@ export default function Prediction({ onBack }) {
       });
     } catch {
       const estimated = estimateRisk(form);
-      setResult({ ...estimated, confidence: Math.max(estimated.probability, 100 - estimated.probability), source: "Frontend estimate - connect Flask API for exact KNN model" });
+      setResult({ ...estimated, confidence: Math.max(estimated.probability, 100 - estimated.probability), source: "Frontend estimate - connect FastAPI backend for exact model" });
     } finally {
       setLoading(false);
     }
