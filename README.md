@@ -20,7 +20,7 @@ Output Directory: dist
 Install Command: npm install
 ```
 
-Add this environment variable after deploying the backend on Render:
+
 
 ```text
 VITE_API_URL=https://your-render-service.onrender.com
