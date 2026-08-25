@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { downloadJsonReport, printReportPdf, reportFilename } from "../utils/exportReport";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8001";
+import { apiFetch } from "../lib/api";
 
 const initialForm = {
   Age: 40,
@@ -45,27 +44,6 @@ const fieldGroups = [
     ],
   },
 ];
-
-
-function estimateRisk(form) {
-  let score = 8;
-  score += Math.max(0, Number(form.Age) - 45) * 0.8;
-  score += form.Sex === "M" ? 6 : 2;
-  score += form.ChestPainType === "ASY" ? 22 : form.ChestPainType === "TA" ? 12 : form.ChestPainType === "NAP" ? 7 : 3;
-  score += Math.max(0, Number(form.RestingBP) - 120) * 0.35;
-  score += Math.max(0, Number(form.Cholesterol) - 190) * 0.12;
-  score += Number(form.FastingBS) === 1 ? 8 : 0;
-  score += form.RestingECG === "ST" ? 8 : form.RestingECG === "LVH" ? 5 : 0;
-  score += Math.max(0, 150 - Number(form.MaxHR)) * 0.28;
-  score += form.ExerciseAngina === "Y" ? 16 : 0;
-  score += Number(form.Oldpeak) * 6;
-  score += form.ST_Slope === "Flat" ? 14 : form.ST_Slope === "Down" ? 22 : 0;
-
-  const bounded = Math.max(3, Math.min(96, Math.round(score)));
-  const prediction = bounded >= 50 ? 1 : 0;
-  const risk = bounded >= 70 ? "High" : bounded >= 40 ? "Medium" : "Low";
-  return { prediction, risk, probability: bounded };
-}
 
 
 function getResultTheme(result) {
@@ -235,10 +213,11 @@ function Field({ field, value, onChange }) {
   );
 }
 
-export default function Prediction({ onBack }) {
+export default function Prediction({ accessToken, onBack }) {
   const [form, setForm] = useState(initialForm);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [requestError, setRequestError] = useState("");
 
   function updateField(name, value) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -247,16 +226,13 @@ export default function Prediction({ onBack }) {
   async function handlePredict(event) {
     event.preventDefault();
     setLoading(true);
+    setRequestError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/predict`, {
+      const data = await apiFetch("/predict", accessToken, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
-      if (!response.ok) throw new Error("Prediction API unavailable");
-      const data = await response.json();
       const probability = Math.round(Number(data.probability ?? data.riskScore ?? (data.prediction ? 76 : 22)));
       const confidence = Math.max(probability, 100 - probability);
       setResult({
@@ -266,9 +242,8 @@ export default function Prediction({ onBack }) {
         confidence,
         source: "Python model API",
       });
-    } catch {
-      const estimated = estimateRisk(form);
-      setResult({ ...estimated, confidence: Math.max(estimated.probability, 100 - estimated.probability), source: "Frontend estimate - connect FastAPI backend for exact model" });
+    } catch (error) {
+      setRequestError(error.message || "Prediction could not be completed.");
     } finally {
       setLoading(false);
     }
@@ -324,6 +299,7 @@ export default function Prediction({ onBack }) {
         </div>
       </header>
 
+      {requestError && <p className="mx-auto mt-6 max-w-7xl rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">{requestError}</p>}
       <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 sm:py-8 xl:grid-cols-[1.1fr_.9fr]">
         <form onSubmit={handlePredict} className="space-y-5">
           {fieldGroups.map((group) => (

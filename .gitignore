@@ -10,5 +10,9 @@ dist/
 # Mac
 .DS_Store
 
+# Environment variables
+.env
+.env.local
+
 # Env
 .env
