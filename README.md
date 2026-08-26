@@ -40,6 +40,11 @@ https://heartguard-ai-system-backend.onrender.com/healthz
 - Responsive UI for desktop and mobile
 - Production deployment with Vercel and Render
 
+## Account access
+
+- Patients create and verify their own accounts.
+- Clinicians sign in through the Clinician option and must be approved with a `doctor` or `clinic_admin` role before they can access the Doctor Dashboard.
+
 ## Tech Stack
 
 | Layer | Technology |
